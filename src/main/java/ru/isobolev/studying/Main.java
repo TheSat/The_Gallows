@@ -1,8 +1,10 @@
-
+package ru.isobolev.studying;
 
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("test prj");
+        GameLoop.getInstance().start();
     }
 }
+
+
