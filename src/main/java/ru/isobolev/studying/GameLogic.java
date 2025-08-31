@@ -3,17 +3,18 @@ package ru.isobolev.studying;
 import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class GameLogic {
 
     private final Integer MAX_ITERATION = 8;
 
-    private LinkedList<Character> wordCharLinkedList = new LinkedList<>();
-
     private LinkedList<Character> hiddenCharLinkedList = new LinkedList<>();
 
-    public LinkedList<Character> getHiddenCharLinkedList() {
-        return hiddenCharLinkedList;
+    private LinkedList<Character> displayedCharLinkedList = new LinkedList<>();
+
+    public LinkedList<Character> getDisplayedCharLinkedList() {
+        return displayedCharLinkedList;
     }
 
     private LinkedList<Character> allCharFromInputLinkedList = new LinkedList<>();
@@ -38,10 +39,12 @@ public class GameLogic {
 
     public void play(GameLoop loop) {
 
-        if (hiddenCharLinkedList.equals(wordCharLinkedList)) {
+        if (displayedCharLinkedList.equals(hiddenCharLinkedList)) {
             showGameMenu(loop, "win");
             return;
         } else if (errors.size() > MAX_ITERATION) {
+            String w = hiddenCharLinkedList.stream().map(String::valueOf).collect(Collectors.joining());
+            System.out.println("Загаданное слово: " + w);
             showGameMenu(loop, "lose");
             return;
         }
@@ -59,11 +62,15 @@ public class GameLogic {
             return;
         }
 
-        if (wordCharLinkedList.contains(inputChar)) {
+        if (hiddenCharLinkedList.contains(inputChar)) {
             allCharFromInputLinkedList.add(inputChar);
             System.out.println("Угадал!");
-            int index = wordCharLinkedList.indexOf(inputChar);
-            hiddenCharLinkedList.set(index, inputChar);
+            for (int index = 0; index < hiddenCharLinkedList.size(); index++) {
+                Character currentChar = hiddenCharLinkedList.get(index);
+                if (currentChar.equals(inputChar)) {
+                    displayedCharLinkedList.set(index, inputChar);
+                }
+            }
         } else {
             allCharFromInputLinkedList.add(inputChar);
             errors.add(inputChar);
@@ -92,8 +99,8 @@ public class GameLogic {
     }
 
     private void resetGame(GameLoop loop) {
-        wordCharLinkedList.clear();
         hiddenCharLinkedList.clear();
+        displayedCharLinkedList.clear();
         allCharFromInputLinkedList.clear();
         errors.clear();
         loop.getRender().currentGallowsLevelReset();
@@ -101,8 +108,8 @@ public class GameLogic {
         String generatedWord = loop.getDictionary().getRandomWord().toLowerCase();
 
         for (int i = 0; i < generatedWord.length(); i++) {
-            wordCharLinkedList.add(generatedWord.charAt(i));
-            hiddenCharLinkedList.add('_');
+            hiddenCharLinkedList.add(generatedWord.charAt(i));
+            displayedCharLinkedList.add('_');
         }
     }
 
